@@ -1,6 +1,6 @@
 
-#ifndef Assignment_3_uart_h_
-#define Assignment_3_uart_h_
+#ifndef Assignment_4_uart_h_
+#define Assignment_4_uart_h_
 
 void uart_init( uint32_t baud);
 void uart_transmit (uint8_t OUTPUT);

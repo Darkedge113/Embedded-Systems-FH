@@ -1,5 +1,5 @@
-#ifndef Assignment_3_adc_h
-#define Assignment_3_adc_h
+#ifndef Assignment_4_adc_h
+#define Assignment_4_adc_h
 
 void adc_init();
 uint16_t adc_read (uint8_t channel);

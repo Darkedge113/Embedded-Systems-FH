@@ -1,5 +1,5 @@
-target = Assignment_3
-objs = Assignment_3_adc.o Assignment_3_uart.o
+target = Assignment_4
+objs = Assignment_4_uart.o
 port = /dev/ttyACM0
 
 all: $(target).hex
