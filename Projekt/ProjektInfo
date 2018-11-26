@@ -1,0 +1,11 @@
+Projekt Ordner für ES
+
+Abgabe und Präsentation: 04.12.2018
+
+Must Haves:
+Einlesen und Ausgabe von IR Befehlen, Projektdokumentation davon
+EEPROM programmiert und Befehle speicher- und abrufbar
+LCD angeschlossen und funktionsfähig
+Ausgabe der Befehle über LCD
+Namensgebung und Speicherung von IR Befehlen über Minicom
+Auswahl der Befehle über Minicom
