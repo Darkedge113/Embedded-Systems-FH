@@ -1,0 +1,12 @@
+Signal von Sensor sind 1 und 0 -> Digital Eingang GPIO
+
+Sensor zieht auf 0 wenn 38kHz Signal anliegt
+
+38kHz Signal wird durch PWM generiert
+T = 1/f
+
+Beim ersten mal 0 -> Timer beginnt
+Flanke auf 1 -> Zeit Speichern und Timer neustarten
+Flanke auf 0 -> Zeit Speichern und Timer neustarten
+
+Flanke auf 1 und Signal längere Zeit auf 1 -> Signal zu Ende
