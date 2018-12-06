@@ -15,7 +15,7 @@ Signal end = Output of Sensor is logical high
 #define F_CPU 16000000
 #define BAUDRATE 115200
 #define MAXSIZE 1000
-#define SENSORINPUT PB0
+#define SENSORINPUT PB3 //externe Interrupt for timer 1 triggers on PB1
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -24,6 +24,8 @@ Signal end = Output of Sensor is logical high
 
 volatile uint16_t globalSensorInputArray[MAXSIZE];
 volatile static uint8_t arrayPosition = 0; //variable value remains after exiting function
+volatile uint8_t arrayFull = 0;
+volatile uint8_t overflowFlag = 0;
 
 void uart_init( uint32_t baud) {
 
@@ -51,11 +53,11 @@ void uart_sendstr( char * str ) {
 
 void init_timer1() {
 	//TCCR1B &= ~(1 << COM1B1) & ~(1 << COM1B0);
-	TCCR1B |= (1 << CS10); // select timer0 prescaler of 1 (62.5 ns resolution)
+	TCCR1B |= (1 << CS12); // select timer1 prescaler of 1 (62.5 ns resolution)
 	TIMSK1 |= (1 << TOIE1); // TIMSK0 |= (1<<TOIE0);
 	//TCNT1 = 0; // to init with reload value
 }
-void reset_timer0() {
+void reset_timer1() {
 	TCNT1 = 0; // to init with reload value
 }
 void init_register() {
@@ -64,34 +66,43 @@ void init_register() {
 }
 void init_externalInterrupt() {
 	//EICRA = external interrupt control register
-	EIMSK |= (1 << INT0);     // Turns on INT0
-	EICRA |= (1 << ISC00);    // set INT0 to trigger on ANY edge
+	EIMSK |= (1 << INT1);     // Turns on INT0
+	EICRA |= (1 << ISC10);    // set INT0 to trigger on ANY edge
 }
 
-void intToString(uint16_t val, char * target) {
+
+void intToString(uint16_t val, char * target) { /* 2^16-1 =  5 digits + 1 for string terminator */
 	int16_t index;
-	for(index = MAXSIZE; index >= 0; index--) {
-		target [index] = val + '0';
+	for(index = 4; index >= 0; index--) {
+		target [index] = val % 10 + '0';
+		val /= 10;
 	}
-	target[MAXSIZE] = 0;
+	target[5] = '\0';
 }
 
 ISR (INT1_vect) { //is called for ANY edge
-	cli();
-	if(PINB & (1<<PB0)) {
-		globalSensorInputArray[arrayPosition] = TCNT1;
-		reset_timer0();
+	static uint8_t firstFlank = 1;
+
+	if (firstFlank) {
+		reset_timer1();
+		firstFlank = 0;
+		return;
 	}
 	else {
-		globalSensorInputArray[arrayPosition] = TCNT1;
-		reset_timer0();
+		if(arrayPosition >= MAXSIZE-1){
+			arrayFull = 1;
+			return;
+		}
+		else {
+			globalSensorInputArray[arrayPosition] = TCNT1;
+			reset_timer1();
+			arrayPosition++;
+		}
 	}
-	arrayPosition++;
-	sei();
 }
 
 ISR(TIMER1_OVF_vect){
-
+	overflowFlag = 1;
 }
 
 int main() {
@@ -99,16 +110,9 @@ int main() {
 	init_externalInterrupt();
 	init_register();
 	init_timer1();
-
 	sei();
 
-	char outPutArrayTest[MAXSIZE];
-
 	while(1) {
-		uart_sendstr("WHILE.\n\r");
-		_delay_ms(1000);
-		
-
 
 	}
 }

@@ -5,20 +5,16 @@ Harald Schuster
 Sends a message over SPI.
 */
 
-
 #include <avr/io.h>
 #include <inttypes.h>
 #include "dogm_lcd.h"
 
 #include <util/delay.h>
 
-
-
 //
 int main(void) {
 	int i = 5;
-	
-	
+
 	// Initialize the SPI interface for the LCD display
 	lcdSpiInit();
 
@@ -34,17 +30,17 @@ int main(void) {
     lcdSetCursor(1, 0);
 	lcdWriteChar(0x3C);
    // lcdWriteString(0, "Das ist ein %i", i);
-	
+
 	lcdCursorOnOff(CURSOR_OFF, POSITION_OFF);
 /*
 	_delay_ms(2000);
-	
+
 	lcdWriteString(text);
 
 	_delay_ms(2000);
 
 	lcdOnOff(LCD_OFF);
-	
+
 	_delay_ms(2000);
 	lcdOnOff(LCD_ON);
 	lcdCursorOnOff(CURSOR_OFF, POSITION_OFF);
@@ -75,14 +71,9 @@ int main(void) {
 
 	while (1)
 	{
-	
+
 	} //endlessly
 
 /*we never reach this*/
 return 0;
 }
-
-
-
-
-
