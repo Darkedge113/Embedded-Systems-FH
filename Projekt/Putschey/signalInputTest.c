@@ -15,9 +15,9 @@ Signal end = Output of Sensor is logical high
 #define F_CPU 16000000
 #define BAUDRATE 115200
 #define MAXSIZE 1000
-#define SENSORINPUT PB3 //externe Interrupt for timer 1 triggers on PB1
+#define SENSORINPUT PD3 //externe Interrupt for timer 1 triggers on PB1
 #define TIMER0_OFFSET 256-52 //reload value of 204 with 0,5µs steps = 26µs = T -> f = 38kHz
-#define IRLED PD4 // Pin for IR led
+#define IRLED PB0 // Pin for IR led
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -54,12 +54,12 @@ void uart_sendstr( char * str ) {
 }
 
 void init_timer0() {
-	TCCR0B |= (1 << CS10); // Enable Timer 8 - 8 prescale
+	TCCR0B |= (1 << CS01); // Enable Timer 8 - 8 prescale
 	TIMSK0 |= (1 << TOIE0);
 	TCNT0 = TIMER0_OFFSET; //reload value of 52 with 0,5µs steps = 26µs = T -> f = 38kHz
 }
 void clear_timer0(){
-	TCCR0B &= ~(1 << CS10); // Enable Timer 8 - 8 prescale
+	TCCR0B &= ~(1 << CS01); // Enable Timer 8 - 8 prescale
 	TIMSK0 &= ~(1 << TOIE0);
 }
 void init_timer1() {
@@ -70,16 +70,11 @@ void init_timer1() {
 void reset_timer1() {
 	TCNT1 = 0; // to init with reload value
 }
-void init_timer2() {
-	TCCR2B |= (1 << CS00); // Enable Timer 0 - No prescale
-	TIMSK2 |= (1 << TOIE2);
-	//TCNT2 = TIMER0_OFFSET; //reload value of 52 with 0,5µs steps = 26µs = T -> f = 38kHz
-}
 void init_register() {
-	DDRD |= (1 << IRLED);
+	DDRB |= (1 << IRLED); //Set PB0 as output
 	//PORTD |= (1 << IRLED);
-	DDRB  &= ~(1 << SENSORINPUT); //set PB0 as input
-	PORTB |= (1 << SENSORINPUT);  // set PB0 pullup
+	DDRD  &= ~(1 << SENSORINPUT); //set PD3 as input
+	PORTD |= (1 << SENSORINPUT);  // set PD3 pullup
 }
 void init_externalInterrupt() {
 	//EICRA = external interrupt control register
@@ -95,9 +90,6 @@ void intToString(uint16_t val, char * target) { /* 2^16-1 =  5 digits + 1 for st
 	target[5] = '\0';
 }
 
-ISR(TIMER2_OVF_vect) {
-
-}
 ISR (INT1_vect) { //is called for ANY edge
 	static uint8_t firstFlank = 1;
 	static uint8_t arrayPosition = 0; //variable value remains after exiting function
@@ -113,7 +105,7 @@ ISR (INT1_vect) { //is called for ANY edge
 		if(arrayPosition >= MAXSIZE-1){
 			arrayFull = 1;
 			return;
-		}
+		 }
 		else {
 			globalSensorInputArray[arrayPosition] = TCNT1;
 			reset_timer1();
