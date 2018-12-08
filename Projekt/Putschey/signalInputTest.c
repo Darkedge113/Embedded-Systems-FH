@@ -59,8 +59,9 @@ void init_timer0() {
 	TCNT0 = TIMER0_OFFSET; //reload value of 52 with 0,5µs steps = 26µs = T -> f = 38kHz
 }
 void clear_timer0(){
-	TCCR0B &= ~(1 << CS01); // Enable Timer 8 - 8 prescale
+	TCCR0B &= ~(1 << CS01); // Disable Timer 8 - 8 prescale
 	TIMSK0 &= ~(1 << TOIE0);
+	TCNT0 = TIMER0_OFFSET;
 }
 void init_timer1() {
 	TCCR1B |= (1 << CS12); // select timer1 prescaler of 1 (62.5 ns resolution)
@@ -94,7 +95,7 @@ ISR (INT1_vect) { //is called for ANY edge
 	static uint8_t firstFlank = 1;
 	static uint8_t arrayPosition = 0; //variable value remains after exiting function
 
-	uart_sendstr("TEST");
+
 
 	if (firstFlank) {
 		reset_timer1();
@@ -114,11 +115,17 @@ ISR (INT1_vect) { //is called for ANY edge
 	}
 }
 ISR(TIMER0_OVF_vect) {
+
+	PORTB |= (1 << IRLED); //LED leuchtet NICHT!
+
 	PORTB ^= (1 << IRLED);
 	TCNT0 = TIMER0_OFFSET; //wird mit 38kHz gerufen
 }
 
 ISR(TIMER1_OVF_vect){
+
+	PORTB |= (1 << IRLED);  //LED leuchtet NICHT!
+
 	overflowFlag = 1;
 	if (signalmode) {
 		init_timer0();
