@@ -72,7 +72,7 @@ void reset_timer1() {
 }
 void init_register() {
 	DDRB |= (1 << IRLED); //Set PB0 as output
-	//PORTD |= (1 << IRLED);
+	//PORTB |= (1 << IRLED);
 	DDRD  &= ~(1 << SENSORINPUT); //set PD3 as input
 	PORTD |= (1 << SENSORINPUT);  // set PD3 pullup
 }
@@ -114,7 +114,7 @@ ISR (INT1_vect) { //is called for ANY edge
 	}
 }
 ISR(TIMER0_OVF_vect) {
-	PORTD ^= (1 << IRLED);
+	PORTB ^= (1 << IRLED);
 	TCNT0 = TIMER0_OFFSET; //wird mit 38kHz gerufen
 }
 
@@ -144,7 +144,6 @@ void outputCommand() {
 		}
 	}
 }
-
 void sendCommand(uint16_t * sendArray) {
 	uint16_t index;
 	while (overflowFlag) {
@@ -164,20 +163,9 @@ int main() {
 	sei();
 
 	_delay_ms(500);
+
+
 	sendCommand(globalSensorInputArray);
+	outputCommand();
 
-	uart_sendstr("Ausgabe des Arrays\n\r");
-	uint16_t index;
-	char convertedString[6];
-	for (index = 0; index < MAXSIZE; index++){
-		intToString(globalSensorInputArray[index], convertedString);
-		uart_sendstr(convertedString);
-		uart_sendstr("\r\n");
-
-		if(globalSensorInputArray[index] == 0) {
-			_delay_ms(300);
-			uart_sendstr("Ende des Arrays\n\r");
-			return;
-		}
-	}
 }
